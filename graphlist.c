@@ -2,6 +2,10 @@
 #include <stdio.h>
 #include "graphlist.h"
 
+void addNeighbour(struct Vertex *vertex, struct Vertex *neighbour);
+
+void removeNeighbour(struct Vertex *vertex, struct Vertex *neighbour);
+
 struct Graph createGraph(int initialSize) {
     struct Graph graph;
     graph.size = 0;
@@ -20,6 +24,21 @@ void addVertex(struct Graph *graph, int id) {
     graph->vertexes[graph->size].id = id;
     graph->vertexes[graph->size].firstNeighbour = NULL;
     graph->size++;
+}
+
+void removeVertex(struct Graph *graph, int id) {
+    struct Vertex *vertex = findVertexById(graph, id);
+
+    struct Node *nextNode = vertex->firstNeighbour;
+    while (nextNode != NULL) {
+        removeEdge(graph, vertex->id, nextNode->vertex->id);
+        nextNode = nextNode->next;
+    }
+
+    struct Vertex *lastVertex = &(graph->vertexes[graph->size - 1]);
+    vertex->id = lastVertex->id;
+    vertex->firstNeighbour = lastVertex->firstNeighbour;
+    graph->size--;
 }
 
 struct Vertex *findVertexById(struct Graph *graph, int id) {
@@ -48,11 +67,38 @@ void addNeighbour(struct Vertex *vertex, struct Vertex *neighbour) {
     }
 }
 
+void removeNeighbour(struct Vertex *vertex, struct Vertex *neighbour) {
+    struct Node *currentNode = vertex->firstNeighbour;
+    if (currentNode == NULL) return;
+
+    if (currentNode->vertex->id == neighbour->id) {
+        vertex->firstNeighbour = currentNode->next;
+        return;
+    }
+
+    checkNextNode:
+    if (currentNode->next == NULL) return;
+
+    if (currentNode->next->vertex->id == neighbour->id) {
+        currentNode->next = currentNode->next->next;
+    } else {
+        currentNode = currentNode->next;
+        goto checkNextNode;
+    }
+}
+
 void addEdge(struct Graph *graph, int vertexId1, int vertexId2) {
     struct Vertex *vertex1 = findVertexById(graph, vertexId1);
     struct Vertex *vertex2 = findVertexById(graph, vertexId2);
     addNeighbour(vertex1, vertex2);
     addNeighbour(vertex2, vertex1);
+}
+
+void removeEdge(struct Graph *graph, int vertexId1, int vertexId2) {
+    struct Vertex *vertex1 = findVertexById(graph, vertexId1);
+    struct Vertex *vertex2 = findVertexById(graph, vertexId2);
+    removeNeighbour(vertex1, vertex2);
+    removeNeighbour(vertex2, vertex1);
 }
 
 void printGraph(struct Graph *graph) {

@@ -27,8 +27,6 @@ void removeVertex(struct Graph *graph, int id);
 
 struct Vertex *findVertexById(struct Graph *graph, int id);
 
-void addNeighbour(struct Vertex *vertex, struct Vertex *neighbour);
-
 void addEdge(struct Graph *graph, int vertexId1, int vertexId2);
 
 void removeEdge(struct Graph *graph, int vertexId1, int vertexId2);
