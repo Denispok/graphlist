@@ -23,6 +23,8 @@ int main() {
     removeEdge(&graph, 25, 40);
     printGraph(&graph);
 
+    cleanGraph(&graph);
+
     // Tests
     printf("addEdgeTest: %s\n", !addEdgeTest() ? "success" : "error");
     printf("removeEdgeTest: %s\n", !removeEdgeTest() ? "success" : "error");

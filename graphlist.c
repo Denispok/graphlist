@@ -73,6 +73,7 @@ void removeNeighbour(struct Vertex *vertex, struct Vertex *neighbour) {
 
     if (currentNode->vertex->id == neighbour->id) {
         vertex->firstNeighbour = currentNode->next;
+        free(currentNode);
         return;
     }
 
@@ -80,7 +81,9 @@ void removeNeighbour(struct Vertex *vertex, struct Vertex *neighbour) {
     if (currentNode->next == NULL) return;
 
     if (currentNode->next->vertex->id == neighbour->id) {
+        struct Node *nextNode = currentNode->next;
         currentNode->next = currentNode->next->next;
+        free(nextNode);
     } else {
         currentNode = currentNode->next;
         goto checkNextNode;
@@ -116,4 +119,17 @@ void printGraph(struct Graph *graph) {
         }
         printf("\n");
     }
+}
+
+void cleanGraph(struct Graph *graph){
+    for (int i = 0; i < graph->size; ++i) {
+        struct Node *currentNode = graph->vertexes[i].firstNeighbour;
+        struct Node *nextNode;
+        while (currentNode != NULL) {
+            nextNode = currentNode->next;
+            free(currentNode);
+            currentNode = nextNode;
+        }
+    }
+    free(graph->vertexes);
 }
