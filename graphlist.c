@@ -15,6 +15,81 @@ struct Graph createGraph(int initialSize) {
     return graph;
 }
 
+struct Graph createGraphFromFile(char *fileName) {
+    struct Graph graph = createGraph(20);
+
+    FILE *file = fopen(fileName, "rt");
+
+    enum State {
+        VERTEX, NODES
+    } state = VERTEX;
+    int wordSize = 0;
+    int maxWordSize = 20;
+    int currentVertexId;
+    char *word = (char *) malloc(sizeof(char) * maxWordSize);
+
+    int nextc = fgetc(file);
+    while (nextc != EOF) {
+        if (state == VERTEX) {
+            if (nextc == ':') {
+                if (wordSize != maxWordSize) word[wordSize] = '.';
+                currentVertexId = atoi(word);
+                struct Vertex *vertex = findVertexById(&graph, currentVertexId);
+                if (vertex == NULL) addVertex(&graph, currentVertexId);
+                wordSize = 0;
+                state = NODES;
+            } else {
+                if (maxWordSize == wordSize) {
+                    maxWordSize *= 2;
+                    word = realloc(word, sizeof(char) * maxWordSize);
+                }
+                word[wordSize] = nextc;
+                wordSize++;
+            }
+        } else {
+            if (nextc == ' ');
+            else if (nextc == ',') {
+                if (wordSize != maxWordSize) word[wordSize] = '.';
+                int vertexId = atoi(word);
+                struct Vertex *vertex = findVertexById(&graph, vertexId);
+                if (vertex == NULL) addVertex(&graph, vertexId);
+                addEdge(&graph, currentVertexId, vertexId);
+                wordSize = 0;
+            } else if (nextc == '\n') {
+                if (wordSize != 0) {
+                    if (wordSize != maxWordSize) word[wordSize] = '.';
+                    int vertexId = atoi(word);
+                    struct Vertex *vertex = findVertexById(&graph, vertexId);
+                    if (vertex == NULL) addVertex(&graph, vertexId);
+                    addEdge(&graph, currentVertexId, vertexId);
+                    wordSize = 0;
+                }
+                state = VERTEX;
+            } else {
+                if (maxWordSize == wordSize) {
+                    maxWordSize *= 2;
+                    word = realloc(word, sizeof(char) * maxWordSize);
+                }
+                word[wordSize] = nextc;
+                wordSize++;
+            }
+        }
+        nextc = fgetc(file);
+    }
+    if (wordSize != 0) {
+        if (wordSize != maxWordSize) word[wordSize] = '.';
+        int vertexId = atoi(word);
+        struct Vertex *vertex = findVertexById(&graph, vertexId);
+        if (vertex == NULL) addVertex(&graph, vertexId);
+        addEdge(&graph, currentVertexId, vertexId);
+    }
+
+    free(word);
+    fclose(file);
+
+    return graph;
+}
+
 void addVertex(struct Graph *graph, int id) {
     if (graph->size == graph->maxSize) {
         graph->maxSize = graph->maxSize * graph->sizeMultiplier;
@@ -121,7 +196,28 @@ void printGraph(struct Graph *graph) {
     }
 }
 
-void cleanGraph(struct Graph *graph){
+void saveGraphToFile(struct Graph *graph, char *fileName) {
+    FILE *file = fopen(fileName, "wt");
+
+    for (int i = 0; i < graph->size; ++i) {
+        fprintf(file, "%d: ", graph->vertexes[i].id);
+        struct Node *currentNode = graph->vertexes[i].firstNeighbour;
+        if (currentNode != NULL) {
+            printNode:
+            fprintf(file, "%d", currentNode->vertex->id);
+            if (currentNode->next != NULL) {
+                fprintf(file, ",");
+                currentNode = currentNode->next;
+                goto printNode;
+            }
+        }
+        fprintf(file, "\n");
+    }
+
+    fclose(file);
+}
+
+void cleanGraph(struct Graph *graph) {
     for (int i = 0; i < graph->size; ++i) {
         struct Node *currentNode = graph->vertexes[i].firstNeighbour;
         struct Node *nextNode;

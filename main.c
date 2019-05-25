@@ -9,21 +9,19 @@ int addVertexTest();
 
 int removeVertexTest();
 
-int main() {
-    struct Graph graph = createGraph(10);
-    for (int i = 0; i <= 40; ++i) {
-        addVertex(&graph, i);
+int main(int argc, char *argv[]) {
+    //TODO 2
+    if (argc != 3) {
+        printf("Wrong arguments count");
+        return -1;
     }
-    for (int i = 0; i <= 40; ++i) {
-        addEdge(&graph, i, 10);
-        addEdge(&graph, i, 25);
-    }
-    removeEdge(&graph, 10, 40);
-    addEdge(&graph, 40, 10);
-    removeEdge(&graph, 25, 40);
-    printGraph(&graph);
 
-    cleanGraph(&graph);
+    char *inputFile = argv[1];
+    char *outputFile = argv[2];
+
+    struct Graph graph = createGraphFromFile(inputFile);
+    printGraph(&graph);
+    saveGraphToFile(&graph, outputFile);
 
     // Tests
     printf("addEdgeTest: %s\n", !addEdgeTest() ? "success" : "error");
