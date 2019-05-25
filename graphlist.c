@@ -6,17 +6,17 @@ void addNeighbour(struct Vertex *vertex, struct Vertex *neighbour);
 
 void removeNeighbour(struct Vertex *vertex, struct Vertex *neighbour);
 
-struct Graph createGraph(int initialSize) {
-    struct Graph graph;
-    graph.size = 0;
-    graph.maxSize = initialSize;
-    graph.sizeMultiplier = 2;
-    graph.vertexes = (struct Vertex *) malloc(sizeof(struct Vertex) * initialSize);
+struct Graph *createGraph(int initialSize) {
+    struct Graph *graph = (struct Graph *) malloc(sizeof(struct Graph));
+    graph->size = 0;
+    graph->maxSize = initialSize;
+    graph->sizeMultiplier = 2;
+    graph->vertexes = (struct Vertex *) malloc(sizeof(struct Vertex) * initialSize);
     return graph;
 }
 
-struct Graph createGraphFromFile(char *fileName) {
-    struct Graph graph = createGraph(20);
+struct Graph *createGraphFromFile(char *fileName) {
+    struct Graph *graph = createGraph(20);
 
     FILE *file = fopen(fileName, "rt");
 
@@ -34,8 +34,8 @@ struct Graph createGraphFromFile(char *fileName) {
             if (nextc == ':') {
                 if (wordSize != maxWordSize) word[wordSize] = '.';
                 currentVertexId = atoi(word);
-                struct Vertex *vertex = findVertexById(&graph, currentVertexId);
-                if (vertex == NULL) addVertex(&graph, currentVertexId);
+                struct Vertex *vertex = findVertexById(graph, currentVertexId);
+                if (vertex == NULL) addVertex(graph, currentVertexId);
                 wordSize = 0;
                 state = NODES;
             } else {
@@ -51,17 +51,17 @@ struct Graph createGraphFromFile(char *fileName) {
             else if (nextc == ',') {
                 if (wordSize != maxWordSize) word[wordSize] = '.';
                 int vertexId = atoi(word);
-                struct Vertex *vertex = findVertexById(&graph, vertexId);
-                if (vertex == NULL) addVertex(&graph, vertexId);
-                addEdge(&graph, currentVertexId, vertexId);
+                struct Vertex *vertex = findVertexById(graph, vertexId);
+                if (vertex == NULL) addVertex(graph, vertexId);
+                addEdge(graph, currentVertexId, vertexId);
                 wordSize = 0;
             } else if (nextc == '\n') {
                 if (wordSize != 0) {
                     if (wordSize != maxWordSize) word[wordSize] = '.';
                     int vertexId = atoi(word);
-                    struct Vertex *vertex = findVertexById(&graph, vertexId);
-                    if (vertex == NULL) addVertex(&graph, vertexId);
-                    addEdge(&graph, currentVertexId, vertexId);
+                    struct Vertex *vertex = findVertexById(graph, vertexId);
+                    if (vertex == NULL) addVertex(graph, vertexId);
+                    addEdge(graph, currentVertexId, vertexId);
                     wordSize = 0;
                 }
                 state = VERTEX;
@@ -79,9 +79,9 @@ struct Graph createGraphFromFile(char *fileName) {
     if (wordSize != 0) {
         if (wordSize != maxWordSize) word[wordSize] = '.';
         int vertexId = atoi(word);
-        struct Vertex *vertex = findVertexById(&graph, vertexId);
-        if (vertex == NULL) addVertex(&graph, vertexId);
-        addEdge(&graph, currentVertexId, vertexId);
+        struct Vertex *vertex = findVertexById(graph, vertexId);
+        if (vertex == NULL) addVertex(graph, vertexId);
+        addEdge(graph, currentVertexId, vertexId);
     }
 
     free(word);
@@ -228,4 +228,5 @@ void cleanGraph(struct Graph *graph) {
         }
     }
     free(graph->vertexes);
+    free(graph);
 }

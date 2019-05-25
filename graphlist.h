@@ -19,9 +19,9 @@ struct Graph {
     int sizeMultiplier;
 };
 
-struct Graph createGraph(int initialSize);
+struct Graph *createGraph(int initialSize);
 
-struct Graph createGraphFromFile(char *fileName);
+struct Graph *createGraphFromFile(char *fileName);
 
 void addVertex(struct Graph *graph, int id);
 

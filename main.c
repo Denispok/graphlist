@@ -19,9 +19,13 @@ int main(int argc, char *argv[]) {
     char *inputFile = argv[1];
     char *outputFile = argv[2];
 
-    struct Graph graph = createGraphFromFile(inputFile);
-    printGraph(&graph);
-    saveGraphToFile(&graph, outputFile);
+    struct Graph *graph = createGraphFromFile(inputFile);
+    printGraph(graph);
+    if (findVertexById(graph, 1) == NULL) addVertex(graph, 1);
+    if (findVertexById(graph, 2) == NULL) addVertex(graph, 2);
+    if (findVertexById(graph, 3) == NULL) addVertex(graph, 3);
+    addEdge(graph, 1, 3);
+    saveGraphToFile(graph, outputFile);
 
     // Tests
     printf("addEdgeTest: %s\n", !addEdgeTest() ? "success" : "error");
@@ -32,25 +36,25 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-struct Graph createTestGraph(int from, int to) {
-    struct Graph graph = createGraph(to - from + 1);
-    graph.size = to - from + 1;
+struct Graph *createTestGraph(int from, int to) {
+    struct Graph *graph = createGraph(to - from + 1);
+    graph->size = to - from + 1;
     for (int i = 0; i <= to - from; ++i) {
         struct Vertex vertex;
         vertex.id = from++;
         vertex.firstNeighbour = NULL;
-        graph.vertexes[i] = vertex;
+        graph->vertexes[i] = vertex;
     }
     return graph;
 }
 
 int addEdgeTest() {
-    struct Graph graph = createTestGraph(1, 10);
+    struct Graph *graph = createTestGraph(1, 10);
     struct Node *node;
 
-    addEdge(&graph, 1, 2);
-    struct Vertex *vertex1 = &graph.vertexes[0];
-    struct Vertex *vertex2 = &graph.vertexes[1];
+    addEdge(graph, 1, 2);
+    struct Vertex *vertex1 = &graph->vertexes[0];
+    struct Vertex *vertex2 = &graph->vertexes[1];
     node = vertex1->firstNeighbour;
     if (!(node != NULL &&
           node->vertex == vertex2 &&
@@ -62,7 +66,7 @@ int addEdgeTest() {
           node->next == NULL))
         return -1;
 
-    addEdge(&graph, 1, 2);
+    addEdge(graph, 1, 2);
     node = vertex1->firstNeighbour;
     if (!(node != NULL &&
           node->vertex == vertex2 &&
@@ -74,8 +78,8 @@ int addEdgeTest() {
           node->next == NULL))
         return -1;
 
-    struct Vertex *vertex3 = &graph.vertexes[2];
-    addEdge(&graph, 1, 3);
+    struct Vertex *vertex3 = &graph->vertexes[2];
+    addEdge(graph, 1, 3);
     node = vertex1->firstNeighbour;
     if (!(node != NULL &&
           ((node->vertex == vertex2 && node->next != NULL && node->next->vertex == vertex3) ||
@@ -92,23 +96,23 @@ int addEdgeTest() {
 }
 
 int removeEdgeTest() {
-    struct Graph graph = createTestGraph(1, 10);
-    struct Vertex *vertex1 = &graph.vertexes[0];
+    struct Graph *graph = createTestGraph(1, 10);
+    struct Vertex *vertex1 = &(graph->vertexes[0]);
     struct Node node1;
     node1.vertex = vertex1;
     node1.next = NULL;
-    struct Vertex *vertex2 = &graph.vertexes[1];
+    struct Vertex *vertex2 = &(graph->vertexes[1]);
     struct Node node2;
     node2.vertex = vertex2;
     node2.next = NULL;
-    struct Vertex *vertex3 = &graph.vertexes[2];
+    struct Vertex *vertex3 = &(graph->vertexes[2]);
     struct Node node3;
     node3.vertex = vertex3;
     node3.next = NULL;
 
     vertex1->firstNeighbour = &node2;
     vertex2->firstNeighbour = &node1;
-    removeEdge(&graph, 1, 2);
+    removeEdge(graph, 1, 2);
     if (!(vertex1->firstNeighbour == NULL &&
           vertex2->firstNeighbour == NULL))
         return -1;
@@ -117,7 +121,7 @@ int removeEdgeTest() {
     vertex1->firstNeighbour->next = &node3;
     vertex2->firstNeighbour = &node1;
     vertex3->firstNeighbour = &node1;
-    removeEdge(&graph, 1, 2);
+    removeEdge(graph, 1, 2);
     if (!(vertex1->firstNeighbour == &node3 &&
           vertex1->firstNeighbour->next == NULL &&
           vertex2->firstNeighbour == NULL &&
@@ -129,7 +133,7 @@ int removeEdgeTest() {
     vertex1->firstNeighbour->next = &node3;
     vertex2->firstNeighbour = &node1;
     vertex3->firstNeighbour = &node1;
-    removeEdge(&graph, 1, 3);
+    removeEdge(graph, 1, 3);
     if (!(vertex1->firstNeighbour == &node2 &&
           vertex1->firstNeighbour->next == NULL &&
           vertex2->firstNeighbour == &node1 &&
@@ -141,14 +145,14 @@ int removeEdgeTest() {
 }
 
 int addVertexTest() {
-    struct Graph graph = createGraph(4);
+    struct Graph *graph = createGraph(4);
     int size = 0;
 
     for (int i = 0; i < 16; ++i) {
-        addVertex(&graph, i);
-        if (graph.size != ++size) return -1;
+        addVertex(graph, i);
+        if (graph->size != ++size) return -1;
         for (int j = 0; j <= i; ++j) {
-            if (graph.vertexes[j].id == i) goto vertexIsFound;
+            if (graph->vertexes[j].id == i) goto vertexIsFound;
         }
         return -1;
         vertexIsFound:;
@@ -158,23 +162,23 @@ int addVertexTest() {
 }
 
 int removeVertexTest() {
-    struct Graph graph = createTestGraph(1, 10);
+    struct Graph *graph = createTestGraph(1, 10);
     struct Node node1;
     struct Node node2;
-    struct Vertex *vertex1 = &graph.vertexes[0];
+    struct Vertex *vertex1 = &graph->vertexes[0];
     node1.vertex = vertex1;
     node1.next = NULL;
     vertex1->firstNeighbour = &node2;
-    struct Vertex *vertex2 = &graph.vertexes[1];
+    struct Vertex *vertex2 = &graph->vertexes[1];
     node2.vertex = vertex2;
     node2.next = NULL;
     vertex2->firstNeighbour = &node1;
 
-    removeVertex(&graph, 1);
-    if (graph.size != 9) return -1;
+    removeVertex(graph, 1);
+    if (graph->size != 9) return -1;
     for (int i = 0; i < 9; ++i) {
-        if (graph.vertexes[i].id == 1) return -1;
-        if (graph.vertexes[i].firstNeighbour == &node1) return -1;
+        if (graph->vertexes[i].id == 1) return -1;
+        if (graph->vertexes[i].firstNeighbour == &node1) return -1;
     }
 
     return 0;
