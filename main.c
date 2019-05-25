@@ -10,7 +10,6 @@ int addVertexTest();
 int removeVertexTest();
 
 int main(int argc, char *argv[]) {
-    //TODO 2
     if (argc != 3) {
         printf("Wrong arguments count");
         return -1;
@@ -21,10 +20,8 @@ int main(int argc, char *argv[]) {
 
     struct Graph *graph = createGraphFromFile(inputFile);
     printGraph(graph);
-    if (findVertexById(graph, 1) == NULL) addVertex(graph, 1);
-    if (findVertexById(graph, 2) == NULL) addVertex(graph, 2);
-    if (findVertexById(graph, 3) == NULL) addVertex(graph, 3);
-    addEdge(graph, 1, 3);
+    if (findVertexById(graph, 6) == NULL) addVertex(graph, 6);
+    addEdge(graph, 1, 6);
     saveGraphToFile(graph, outputFile);
 
     // Tests
