@@ -19,17 +19,16 @@ int main(int argc, char *argv[]) {
     char *outputFile = argv[2];
 
     struct Graph *graph = createGraphFromFile(inputFile);
-    printGraph(graph);
+    printGraph(graph, NULL);
     if (findVertexById(graph, 6) == NULL) addVertex(graph, 6);
     addEdge(graph, 1, 6);
-    saveGraphToFile(graph, outputFile);
+    printGraph(graph, outputFile);
 
     // Tests
     printf("addEdgeTest: %s\n", !addEdgeTest() ? "success" : "error");
     printf("removeEdgeTest: %s\n", !removeEdgeTest() ? "success" : "error");
     printf("addVertexTest: %s\n", !addVertexTest() ? "success" : "error");
     printf("removeVertexTest: %s\n", !removeVertexTest() ? "success" : "error");
-
     return 0;
 }
 

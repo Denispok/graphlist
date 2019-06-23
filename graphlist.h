@@ -33,9 +33,7 @@ void addEdge(struct Graph *graph, int vertexId1, int vertexId2);
 
 void removeEdge(struct Graph *graph, int vertexId1, int vertexId2);
 
-void printGraph(struct Graph *graph);
-
-void saveGraphToFile(struct Graph *graph, char *fileName);
+void printGraph(struct Graph *graph, char *fileName);
 
 void cleanGraph(struct Graph *graph);
 

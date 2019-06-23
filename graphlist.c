@@ -179,25 +179,8 @@ void removeEdge(struct Graph *graph, int vertexId1, int vertexId2) {
     removeNeighbour(vertex2, vertex1);
 }
 
-void printGraph(struct Graph *graph) {
-    for (int i = 0; i < graph->size; ++i) {
-        printf("%d: ", graph->vertexes[i].id);
-        struct Node *currentNode = graph->vertexes[i].firstNeighbour;
-        if (currentNode != NULL) {
-            printNode:
-            printf("%d", currentNode->vertex->id);
-            if (currentNode->next != NULL) {
-                printf(",");
-                currentNode = currentNode->next;
-                goto printNode;
-            }
-        }
-        printf("\n");
-    }
-}
-
-void saveGraphToFile(struct Graph *graph, char *fileName) {
-    FILE *file = fopen(fileName, "wt");
+void printGraph(struct Graph *graph, char *fileName) {
+    FILE *file = fileName == NULL ? stdout : fopen(fileName, "wt");
 
     for (int i = 0; i < graph->size; ++i) {
         fprintf(file, "%d: ", graph->vertexes[i].id);
@@ -214,7 +197,7 @@ void saveGraphToFile(struct Graph *graph, char *fileName) {
         fprintf(file, "\n");
     }
 
-    fclose(file);
+    if (fileName != NULL) fclose(file);
 }
 
 void cleanGraph(struct Graph *graph) {
